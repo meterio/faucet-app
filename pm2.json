@@ -5,7 +5,9 @@
       "instances": "2",
       "script": "./src/server.ts",
       "interpreter": "ts-node",
-      "env": {}
+      "env": {
+        "NODE_ENV": "production"
+      }
     }
   ]
 }
