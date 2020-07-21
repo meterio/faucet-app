@@ -1,0 +1,11 @@
+{
+  "apps": [
+    {
+      "name": "faucet",
+      "instances": "2",
+      "script": "./src/server.ts",
+      "interpreter": "ts-node",
+      "env": {}
+    }
+  ]
+}

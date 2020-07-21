@@ -1,0 +1,46 @@
+.btn-block > .fab {
+  font-size: 1.4rem;
+  margin-right: 0.6rem;
+  padding: 0.2rem 0.8em 0.2rem 0;
+  border-right: 1px solid white;
+}
+
+.btn-block {
+  color: white !important;
+}
+
+.btn-block:hover {
+  color: #444;
+  filter: brightness(110%);
+}
+
+.btn-facebook {
+  line-height: 1.4rem;
+  text-align: left;
+  color: white;
+  background-color: #4266b2 !important;
+}
+
+.btn-google {
+  text-align: left;
+  color: white;
+  background-color: #e04932 !important;
+}
+
+.btn-discord {
+  text-align: left;
+  color: white;
+  background-color: #7289da !important;
+}
+
+.btn-telegram {
+  text-align: left;
+  color: white;
+  background-color: #0088cc !important;
+}
+
+.btn-twitter {
+  text-align: left;
+  color: white;
+  background-color: #1da1f2 !important;
+}
