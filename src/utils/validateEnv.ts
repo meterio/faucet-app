@@ -4,13 +4,8 @@ import { config } from 'dotenv';
 const { NODE_ENV } = process.env;
 function validateEnv() {
   console.log('node env:', NODE_ENV);
-  if (NODE_ENV === 'production') {
-    config({ path: '.env.prod' });
-  } else if (NODE_ENV === 'development') {
-    config({ path: '.env.dev' });
-  } else {
-    config();
-  }
+  config();
+  console.log('FAUCET_URL:', process.env.FAUCET_URL);
 
   cleanEnv(process.env, {
     // JWT_SECRET: str(),
