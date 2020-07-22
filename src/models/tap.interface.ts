@@ -1,11 +1,15 @@
 interface Tap {
   fromAddr: string;
   toAddr: string;
-  value: string;
-  token: string;
-  txID: string;
+  txs: Tx[];
   timestamp: number;
   ipAddr: string;
+}
+
+interface Tx {
+  txID: string;
+  value: string;
+  token: string;
 }
 
 export default Tap;

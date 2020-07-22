@@ -1,4 +1,4 @@
-import { cleanEnv, port, str } from 'envalid';
+import { cleanEnv, port, str, num } from 'envalid';
 import { config } from 'dotenv';
 
 const { NODE_ENV } = process.env;
@@ -22,6 +22,10 @@ function validateEnv() {
     FAUCET_KEY: str(),
     FAUCET_URL: str(),
     PORT: port(),
+
+    MTRG_BALANCE_THRESHOLD: num(),
+    TAP_AMOUNT_MTR: num(),
+    TAP_AMOUNT_MTRG: num(),
   });
 }
 

@@ -6,7 +6,14 @@ import AlreadyTappedIn24HoursException from '../exceptions/AlreadyTappedIn24Hour
 import WalletService from '../services/wallet.service';
 import TapRepo from '../repos/tap.repo';
 import ServiceNotReadyException from '../exceptions/ServiceNotReadyException';
+import BigNumber from 'bignumber.js';
 
+const {
+  TAP_AMOUNT_MTR,
+  TAP_AMOUNT_MTRG,
+  FAUCET_ADDR,
+  MTRG_BALANCE_THRESHOLD,
+} = process.env;
 class TapController implements Controller {
   public path = '/taps';
   public router = Router();
@@ -38,6 +45,7 @@ class TapController implements Controller {
     response: Response,
     next: NextFunction
   ) => {
+    // check tap within 24 hours by the same ip
     const ipAddr = request.headers['x-forwarded-for']
       ? <string>request.headers['x-forwarded-for']
       : request.connection.remoteAddress || '';
@@ -48,39 +56,59 @@ class TapController implements Controller {
       return next(new AlreadyTappedIn24HoursException(ipAddr));
     }
 
+    // check tap with the same address
     const address = request.params.address || request.body.address;
     const tap = await this.tapRepo.findByToAddr(address);
     if (tap && tap.length > 0) {
       console.log('already tapped address: ', address);
       return next(new AlreadyTappedException(address));
-    } else {
-      const balance = await this.wallet.getBalance(address);
-      if (Math.floor(balance / 1e18) < 1) {
-        return next(new NotEnoughBalanceException(address));
-      }
-      console.log('tap for address:', address);
-      const amount = '5' + '0'.repeat(16);
-      const result = await this.wallet.transferMTR(address, amount); // transfer 0.05 MTR to target address
-      if (!result) {
+    }
+
+    // check mtrg balance if reuqired
+    const balance = await this.wallet.getBalance(address);
+    if (Math.floor(balance / 1e18) < parseInt(MTRG_BALANCE_THRESHOLD!, 10)) {
+      return next(new NotEnoughBalanceException(address));
+    }
+
+    // start tapping
+    console.log('tap for address:', address);
+    let txs = [];
+    if (parseFloat(TAP_AMOUNT_MTR!) > 0) {
+      const mtrAmount = new BigNumber(TAP_AMOUNT_MTR!)
+        .multipliedBy(1e18)
+        .toString();
+      const mtrTx = await this.wallet.transferMTR(address, mtrAmount); // transfer 0.05 MTR to target address
+      if (!mtrTx) {
         return next(new ServiceNotReadyException());
       }
-      console.log('tapped for address:', address, 'result:', result);
-
-      const newTap = await this.tapRepo.create({
-        fromAddr: result.signer,
-        toAddr: address,
-        value: amount,
-        token: 'MTR',
-        txID: result.txid,
-        timestamp: Math.floor(Date.now() / 1000),
-        ipAddr,
-      });
-
-      response.send({
-        tap: newTap.toJSON(),
-        message: `Address ${address} has been isssued 0.05 MTR`,
-      });
+      txs.push({ txID: mtrTx.txid, value: mtrAmount, token: 'MTR' });
     }
+
+    if (parseFloat(TAP_AMOUNT_MTRG!) > 0) {
+      const mtrgAmount = new BigNumber(TAP_AMOUNT_MTRG!)
+        .multipliedBy(1e18)
+        .toString();
+      const mtrgTx = await this.wallet.transferMTRG(address, mtrgAmount); // transfer 0.05 MTR to target address
+      if (!mtrgTx) {
+        return next(new ServiceNotReadyException());
+      }
+      txs.push({ txID: mtrgTx.txid, value: mtrgAmount, token: 'MTRG' });
+    }
+
+    console.log('tapped for address:', address, 'txs:', txs);
+
+    const newTap = await this.tapRepo.create({
+      fromAddr: FAUCET_ADDR!,
+      toAddr: address,
+      txs: txs,
+      timestamp: Math.floor(Date.now() / 1000),
+      ipAddr,
+    });
+
+    response.send({
+      tap: newTap.toJSON(),
+      message: `Address ${address} has been isssued ${TAP_AMOUNT_MTR} MTR and ${TAP_AMOUNT_MTRG} MTRG`,
+    });
   };
 }
 

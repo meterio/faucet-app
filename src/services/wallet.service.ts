@@ -5,6 +5,7 @@ import {
   SimpleWallet,
 } from '@meterio/flex-framework';
 import axios from 'axios';
+import BigNumber from 'bignumber.js';
 
 const { FAUCET_ADDR, FAUCET_KEY, FAUCET_URL } = process.env;
 
@@ -67,6 +68,30 @@ class WalletService {
         data: '0x',
         token: 0,
         comment: 'Transfer 0.05 MTR',
+      },
+    ]);
+  }
+
+  public async transferMTRG(toAddr: string, amount: string) {
+    if (!this.flex) {
+      return undefined;
+    }
+    const signingService = this.flex.vendor.sign('tx');
+
+    signingService
+      .signer(FAUCET_ADDR!) // Enforce signer
+      .gas(21000) // Set maximum gas
+      .comment('faucet');
+
+    return signingService.request([
+      {
+        to: toAddr,
+        value: amount,
+        data: '0x',
+        token: 1,
+        comment: `Transfer ${new BigNumber(amount)
+          .dividedBy(1e18)
+          .toString()} MTR`,
       },
     ]);
   }
