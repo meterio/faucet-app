@@ -7,6 +7,7 @@ COPY package.json .
 COPY pm2.json .
 
 # Install app dependencies
+RUN pm2 install typescript
 ENV NPM_CONFIG_LOGLEVEL warn
 RUN npm install --production
 
