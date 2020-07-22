@@ -3,7 +3,7 @@ import Controller from '../interfaces/controller.interface';
 
 const { FAUCET_URL } = process.env;
 
-class ClaimController implements Controller {
+class MetricController implements Controller {
   public path = '/metrics';
   public router = Router();
 
@@ -18,4 +18,4 @@ class ClaimController implements Controller {
   }
 }
 
-export default ClaimController;
+export default MetricController;
