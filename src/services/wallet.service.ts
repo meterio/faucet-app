@@ -62,14 +62,18 @@ class WalletService {
       .gas(21000) // Set maximum gas
       .comment('faucet');
 
-    console.log(`transfer MTR to ${toAddr} with amount ${amount}`);
+    const comment = `Transfer ${new BigNumber(amount)
+      .dividedBy(1e18)
+      .toString()} MTR`;
+
+    console.log(`${comment} to ${toAddr}`);
     return signingService.request([
       {
         to: toAddr,
         value: amount,
         data: '0x',
         token: 0,
-        comment: 'Transfer 0.05 MTR',
+        comment,
       },
     ]);
   }
@@ -85,7 +89,10 @@ class WalletService {
       .gas(21000) // Set maximum gas
       .comment('faucet');
 
-    console.log(`transfer MTRG to ${toAddr} with amount ${amount}`);
+    const comment = `Transfer ${new BigNumber(amount)
+      .dividedBy(1e18)
+      .toString()} MTRG`;
+    console.log(`${comment} ${amount}`);
 
     return signingService.request([
       {
@@ -93,9 +100,7 @@ class WalletService {
         value: amount,
         data: '0x',
         token: 1,
-        comment: `Transfer ${new BigNumber(amount)
-          .dividedBy(1e18)
-          .toString()} MTR`,
+        comment,
       },
     ]);
   }

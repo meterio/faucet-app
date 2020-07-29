@@ -76,7 +76,7 @@ class TapController implements Controller {
     if (parseFloat(TAP_AMOUNT_MTR!) > 0) {
       const mtrAmount = new BigNumber(TAP_AMOUNT_MTR!)
         .multipliedBy(1e18)
-        .toString();
+        .toFixed();
       const mtrTx = await this.wallet.transferMTR(address, mtrAmount); // transfer 0.05 MTR to target address
       if (!mtrTx) {
         return next(new ServiceNotReadyException());
@@ -87,7 +87,7 @@ class TapController implements Controller {
     if (parseFloat(TAP_AMOUNT_MTRG!) > 0) {
       const mtrgAmount = new BigNumber(TAP_AMOUNT_MTRG!)
         .multipliedBy(1e18)
-        .toString();
+        .toFixed();
       const mtrgTx = await this.wallet.transferMTRG(address, mtrgAmount); // transfer 0.05 MTR to target address
       if (!mtrgTx) {
         return next(new ServiceNotReadyException());
