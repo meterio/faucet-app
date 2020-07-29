@@ -6,6 +6,7 @@ import {
 } from '@meterio/flex-framework';
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
+import { toASCII } from 'punycode';
 
 const { FAUCET_ADDR, FAUCET_KEY, FAUCET_URL } = process.env;
 
@@ -61,6 +62,7 @@ class WalletService {
       .gas(21000) // Set maximum gas
       .comment('faucet');
 
+    console.log(`transfer MTR to ${toAddr} with amount ${amount}`);
     return signingService.request([
       {
         to: toAddr,
@@ -82,6 +84,8 @@ class WalletService {
       .signer(FAUCET_ADDR!) // Enforce signer
       .gas(21000) // Set maximum gas
       .comment('faucet');
+
+    console.log(`transfer MTRG to ${toAddr} with amount ${amount}`);
 
     return signingService.request([
       {
