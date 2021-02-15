@@ -1,14 +1,17 @@
 import * as mongoose from 'mongoose';
 import Tap from './tap.interface';
-const txSchema = new mongoose.Schema({
-  txID: { type: String, required: true },
-  value: { type: String, required: true }, // value in Wei
-  token: { type: String, enum: ['MTR', 'MTRG'], required: true },
-});
+const txSchema = new mongoose.Schema(
+  {
+    hash: { type: String, required: true },
+    amount: { type: String, required: true }, // value in Wei
+    token: { type: String, enum: ['MTR', 'MTRG'], required: true },
+  },
+  { _id: false }
+);
 
 const tapSchema = new mongoose.Schema({
-  fromAddr: { type: String, required: true },
-  toAddr: { type: String, required: true },
+  from: { type: String, required: true },
+  to: { type: String, required: true },
   txs: { type: [txSchema], required: true },
   timestamp: { type: Number },
   ipAddr: { type: String, required: true },

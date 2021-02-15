@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import Controller from '../interfaces/controller.interface';
 
-const { FAUCET_URL } = process.env;
+const { FAUCET_NETWORK } = process.env;
 
 class MetricController implements Controller {
   public path = '/metrics';
@@ -13,7 +13,7 @@ class MetricController implements Controller {
 
   private initializeRoutes() {
     this.router.get(`${this.path}`, (req, res, next) =>
-      res.send({ url: FAUCET_URL })
+      res.send({ network: FAUCET_NETWORK })
     );
   }
 }

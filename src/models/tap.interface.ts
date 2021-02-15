@@ -1,14 +1,14 @@
 interface Tap {
-  fromAddr: string;
-  toAddr: string;
+  from: string;
+  to: string;
   txs: Tx[];
   timestamp: number;
   ipAddr: string;
 }
 
 interface Tx {
-  txID: string;
-  value: string;
+  hash: string;
+  amount: string;
   token: string;
 }
 

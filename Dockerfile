@@ -11,6 +11,6 @@ RUN pm2 install typescript
 ENV NPM_CONFIG_LOGLEVEL warn
 RUN npm install --production
 
-EXPOSE 3001
+EXPOSE 4000
 
 CMD [ "pm2-runtime", "start", "pm2.json" ]

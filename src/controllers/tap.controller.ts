@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction, Router } from 'express';
+import { Request, Response, NextFunction, Router, response } from 'express';
 import Controller from '../interfaces/controller.interface';
 import AlreadyTappedException from '../exceptions/AlreadyTappedException';
 import NotEnoughBalanceException from '../exceptions/NotEnoughBalanceException';
@@ -8,12 +8,7 @@ import TapRepo from '../repos/tap.repo';
 import ServiceNotReadyException from '../exceptions/ServiceNotReadyException';
 import BigNumber from 'bignumber.js';
 
-const {
-  TAP_AMOUNT_MTR,
-  TAP_AMOUNT_MTRG,
-  FAUCET_ADDR,
-  MTRG_BALANCE_THRESHOLD,
-} = process.env;
+const { FAUCET_NETWORK, FAUCET_ADDR } = process.env;
 class TapController implements Controller {
   public path = '/taps';
   public router = Router();
@@ -26,9 +21,38 @@ class TapController implements Controller {
 
   private initializeRoutes() {
     this.router.get(`${this.path}/:address`, this.execTap);
+    this.router.get(`${this.path}/:address/history`, this.getHistoryTaps);
     this.router.post(`${this.path}`, this.execTap);
     this.router.get(`${this.path}/`, this.getAllTaps);
   }
+
+  private getHistoryTaps = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    const { address } = req.params;
+    const taps = await this.tapRepo.findByTo(address);
+    let entries = [];
+    const linkPrefix =
+      FAUCET_NETWORK!.toLowerCase() === 'mainnet'
+        ? 'https://explorer.meter.io/tx/'
+        : 'https://explorer-warringstakes.meter.io/tx/';
+    for (const tap of taps) {
+      for (const tx of tap.txs) {
+        entries.push({
+          to: tap.to,
+          url: `${linkPrefix}${tx.hash}`,
+          amountStr: `${new BigNumber(tx.amount).dividedBy(1e18).toFixed()} ${
+            tx.token
+          }`,
+          timestamp: tap.timestamp,
+        });
+      }
+    }
+    // res.send({ taps: taps.map((t) => t.toJSON()) });
+    res.render('pages/history', { entries, address });
+  };
 
   private getAllTaps = async (
     request: Request,
@@ -56,58 +80,88 @@ class TapController implements Controller {
       return next(new AlreadyTappedIn24HoursException(ipAddr));
     }
 
+    const rules = request.app.get('tap-rules');
+
     // check tap with the same address
     const address = request.params.address || request.body.address;
-    const tap = await this.tapRepo.findByToAddr(address);
+    const tap = await this.tapRepo.findByTo(address);
     if (tap && tap.length > 0) {
       console.log('already tapped address: ', address);
       return next(new AlreadyTappedException(address));
     }
 
     // check mtrg balance if reuqired
-    const balance = await this.wallet.getBalance(address);
-    if (Math.floor(balance / 1e18) < parseInt(MTRG_BALANCE_THRESHOLD!, 10)) {
-      return next(new NotEnoughBalanceException(address));
+    const minMTRGBalance = rules.prerequisite.minimalMTRGBalance;
+    if (minMTRGBalance.isGreaterThan(0)) {
+      const balance = await this.wallet.getBalance(address);
+      if (new BigNumber(balance).isGreaterThanOrEqualTo(minMTRGBalance)) {
+        return next(new NotEnoughBalanceException(address));
+      }
     }
 
     // start tapping
     console.log('tap for address:', address);
     let txs = [];
-    if (parseFloat(TAP_AMOUNT_MTR!) > 0) {
-      const mtrAmount = new BigNumber(TAP_AMOUNT_MTR!)
-        .multipliedBy(1e18)
-        .toFixed();
-      const mtrTx = await this.wallet.transferMTR(address, mtrAmount); // transfer 0.05 MTR to target address
-      if (!mtrTx) {
-        return next(new ServiceNotReadyException());
+    let msgs = [];
+    if (rules.tapMTR.enabled) {
+      const amount = rules.tapMTR.amount;
+      if (amount.isGreaterThan(0)) {
+        const mtrTx = await this.wallet.transferMTR(address, amount); // transfer 0.05 MTR to target address
+        if (!mtrTx) {
+          return next(new ServiceNotReadyException());
+        }
+        txs.push({ hash: mtrTx.txid, amount, token: 'MTR' });
+        msgs.push(`${amount.dividedBy(1e18).toFixed()} MTR`);
       }
-      txs.push({ txID: mtrTx.txid, value: mtrAmount, token: 'MTR' });
     }
 
-    if (parseFloat(TAP_AMOUNT_MTRG!) > 0) {
-      const mtrgAmount = new BigNumber(TAP_AMOUNT_MTRG!)
-        .multipliedBy(1e18)
-        .toFixed();
-      const mtrgTx = await this.wallet.transferMTRG(address, mtrgAmount); // transfer 0.05 MTR to target address
-      if (!mtrgTx) {
-        return next(new ServiceNotReadyException());
+    if (rules.tapMTRG.amount) {
+      const amount = rules.tapMTRG.amount;
+      if (amount.isGreaterThan(0)) {
+        const mtrgTx = await this.wallet.transferMTRG(address, amount); // transfer 0.05 MTR to target address
+        if (!mtrgTx) {
+          return next(new ServiceNotReadyException());
+        }
+        txs.push({ hash: mtrgTx.txid, amount, token: 'MTRG' });
       }
-      txs.push({ txID: mtrgTx.txid, value: mtrgAmount, token: 'MTRG' });
+      if (msgs.length >= 1) {
+        msgs.push('and');
+      }
+      msgs.push(`${amount.dividedBy(1e18).toFixed()} MTRG`);
     }
 
     console.log('tapped for address:', address, 'txs:', txs);
 
     const newTap = await this.tapRepo.create({
-      fromAddr: FAUCET_ADDR!,
-      toAddr: address,
-      txs: txs,
+      from: FAUCET_ADDR!,
+      to: address,
+      txs,
       timestamp: Math.floor(Date.now() / 1000),
       ipAddr,
     });
 
+    const links = [];
+    for (const tx of txs) {
+      if (FAUCET_NETWORK!.toLowerCase() === 'mainnet') {
+        links.push({
+          text: `Tx for ${new BigNumber(tx.amount).dividedBy(1e18).toFixed()} ${
+            tx.token
+          }`,
+          url: `https://explorer.meter.io/tx/${tx.hash}`,
+        });
+      } else {
+        links.push({
+          text: `Tx for ${new BigNumber(tx.amount).dividedBy(1e18).toFixed()} ${
+            tx.token
+          }`,
+          url: `https://explorer-warringstakes.meter.io/tx/${tx.hash}`,
+        });
+      }
+    }
     response.send({
       tap: newTap.toJSON(),
-      message: `Address ${address} has been isssued ${TAP_AMOUNT_MTR} MTR and ${TAP_AMOUNT_MTRG} MTRG`,
+      links,
+      message: `Address ${address} has been isssued ${msgs.join(' ')}`,
     });
   };
 }

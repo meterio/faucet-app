@@ -1,0 +1,61 @@
+<html>
+  <head>
+    <!-- jQuery -->
+    <script
+      src="https://code.jquery.com/jquery-3.4.1.min.js"
+      integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+      crossorigin="anonymous"
+    ></script>
+    <!-- END jQuery-->
+
+    <!-- Bootstrap -->
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T"
+      crossorigin="anonymous"
+    />
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+      integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+      crossorigin="anonymous"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.2.0/css/all.css"
+      integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ"
+      crossorigin="anonymous"
+    />
+
+  <body style="background:#f5f5f5">
+    <div class="container pt-5">
+        <div class="card">
+            <div class="card-body">
+            <h5 class="card-title mb-4">
+                Claim history for <%=address%>
+            </h5>
+            <div class="card-text ">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Amount</th>
+                    <th>Timestamp</th>
+                    <th>To</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for (var entry of entries) {%>
+                <tr>
+                    <td><%=entry.amountStr%></td>
+                    <td><%=entry.timestamp%></td>
+                    <td><a href="<%=entry.url%>">link</a></td>
+                </tr>
+                <% } %>
+            </tbody>
+        </table>
+        </div>
+</div>
+      </div>
+    </div>
+  </body>
+</html>

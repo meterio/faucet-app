@@ -12,7 +12,7 @@ MONGO_PWD=faucet
 MONGO_PATH=@127.0.0.1:27017/faucet
 FAUCET_ADDR=[faucet address]
 FAUCET_KEY=[faucet private key]
-FAUCET_URL=http://[full node domain]:8669/
+FAUCET_NETWORK=mainnet // or testnet
 
 # only account has a MTRG balance larger than this will be able to tap from this faucet
 MTRG_BALANCE_THRESHOLD=1

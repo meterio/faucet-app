@@ -62,7 +62,7 @@
             if (res.error) {
               showError(res.error);
             } else {
-              showInfo(res.message);
+              showInfo(res.message, res.links);
             }
             displayClaimNow();
           })
@@ -84,12 +84,13 @@
             "</p></div>"
         );
       }
-      function showInfo(msg) {
-        $("#hints").html(
-          '<div class="alert alert-success alert-dismissable fade show"><button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button><h4>Well Done!</h4><p>' +
-            msg +
-            "</p></div>"
-        );
+      function showInfo(msg, links) {
+        let html = '<div class="alert alert-success alert-dismissable fade show"><button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button><h4>Well Done!</h4><p>' + msg+'</p>'
+        for (const link of links){
+          html += `<p><a href='${link.url}'>${link.text}</a></p>`
+        }
+        html+='</div>'
+        $("#hints").html(html);
       }
     </script>
   </head>

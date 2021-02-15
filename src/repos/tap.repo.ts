@@ -8,8 +8,8 @@ class TapRepo {
     return this.tap.find();
   }
 
-  public async findByToAddr(toAddr: string) {
-    return this.tap.find({ toAddr: toAddr });
+  public async findByTo(toAddr: string) {
+    return this.tap.find({ to: toAddr });
   }
 
   public async findRecentTapsByIP(ipAddr: string) {
