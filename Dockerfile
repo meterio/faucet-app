@@ -10,6 +10,7 @@ COPY pm2.json .
 RUN pm2 install typescript
 ENV NPM_CONFIG_LOGLEVEL warn
 RUN npm install --production
+RUN apk add wget && wget https://s3.amazonaws.com/rds-downloads/rds-combined-ca-bundle.pem && apk del wget
 
 EXPOSE 4000
 
