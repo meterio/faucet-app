@@ -6,6 +6,7 @@ import * as cors from 'cors';
 import Controller from './interfaces/controller.interface';
 import errorMiddleware from './middleware/error.middleware';
 import { getTapRules } from './const/rules';
+import * as path from 'path';
 class App {
   public app: express.Application;
 
@@ -38,6 +39,14 @@ class App {
     this.app.use(cookieParser());
     this.app.set('view engine', 'ejs');
     this.app.use(express.static(`${__dirname}/public`));
+    this.app.use(
+      '/bootstrap',
+      express.static(path.join(__dirname, '..', '/node_modules/bootstrap/dist'))
+    );
+    this.app.use(
+      '/font-awesome',
+      express.static(path.join(__dirname, '..', '/node_modules/font-awesome'))
+    );
   }
 
   private initializeErrorHandling() {
