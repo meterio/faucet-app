@@ -2,7 +2,6 @@
   <head>
     <!-- jQuery -->
     <script src="/js/jquery-3.4.1.min.js" ></script>
-    <!-- END jQuery-->
 
     <!-- Bootstrap -->
     <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
@@ -92,9 +91,19 @@
              </a> 
             </div>
           </div>
+          
           <h3 class="text-center">Claim your MTR token on 
-            <span class="badge badge-dark" style='margin-bottom:50px;'><%= isMainnet ? 'Mainnet' : 'Testnet'%> </span>
+            <span class="badge badge-dark" style='margin-bottom:10px;'><%= isMainnet ? 'Mainnet' : 'Testnet'%> </span>
           </h3> 
+          <div class='alert alert-success mb-2'>
+            <b>Rules:</b>
+            <ol>
+              <li>At least 1 MTRG in given address to claim MTR</li>
+              <li>One IP could only claim once within 24 hours</li>
+              <li>One address could only claim once</li>
+              <li>Each valid time, 0.3 MTR will be issued to given address</li>
+            </ol>
+          </div>
           <form id="claimForm" action="/taps" method="POST">
             <input
               class="form-control"

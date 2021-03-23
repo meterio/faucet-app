@@ -94,7 +94,10 @@ class TapController implements Controller {
     const minMTRGBalance = rules.prerequisite.minimalMTRGBalance;
     if (minMTRGBalance.isGreaterThan(0)) {
       const balance = await this.wallet.getBalance(address);
-      if (new BigNumber(balance).isGreaterThanOrEqualTo(minMTRGBalance)) {
+      if (!balance.isGreaterThanOrEqualTo(minMTRGBalance)) {
+        console.log('NOT ENOUGH');
+        console.log(balance.toFixed());
+        console.log(minMTRGBalance.toFixed());
         return next(new NotEnoughBalanceException(address));
       }
     }
@@ -103,27 +106,31 @@ class TapController implements Controller {
     console.log('tap for address:', address);
     let txs = [];
     let msgs = [];
-    if (rules.tapMTR.enabled) {
+    if (
+      rules.tapMTR.enabled &&
+      rules.tapMTR.amount &&
+      rules.tapMTR.amount.isGreaterThan(0)
+    ) {
       const amount = rules.tapMTR.amount;
-      if (amount.isGreaterThan(0)) {
-        const mtrTx = await this.wallet.transferMTR(address, amount); // transfer 0.05 MTR to target address
-        if (!mtrTx) {
-          return next(new ServiceNotReadyException());
-        }
-        txs.push({ hash: mtrTx.txid, amount, token: 'MTR' });
-        msgs.push(`${amount.dividedBy(1e18).toFixed()} MTR`);
+      const mtrTx = await this.wallet.transferMTR(address, amount); // transfer 0.05 MTR to target address
+      if (!mtrTx) {
+        return next(new ServiceNotReadyException());
       }
+      txs.push({ hash: mtrTx.txid, amount, token: 'MTR' });
+      msgs.push(`${amount.dividedBy(1e18).toFixed()} MTR`);
     }
 
-    if (rules.tapMTRG.amount) {
+    if (
+      rules.tapMTRG.enalbed &&
+      rules.tapMTRG.amount &&
+      rules.tapMTRG.amount.isGreaterThan(0)
+    ) {
       const amount = rules.tapMTRG.amount;
-      if (amount.isGreaterThan(0)) {
-        const mtrgTx = await this.wallet.transferMTRG(address, amount); // transfer 0.05 MTR to target address
-        if (!mtrgTx) {
-          return next(new ServiceNotReadyException());
-        }
-        txs.push({ hash: mtrgTx.txid, amount, token: 'MTRG' });
+      const mtrgTx = await this.wallet.transferMTRG(address, amount); // transfer 0.05 MTR to target address
+      if (!mtrgTx) {
+        return next(new ServiceNotReadyException());
       }
+      txs.push({ hash: mtrgTx.txid, amount, token: 'MTRG' });
       if (msgs.length >= 1) {
         msgs.push('and');
       }

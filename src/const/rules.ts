@@ -13,11 +13,11 @@ export const TapRules: { [key: string]: any } = {
     },
     tapMTR: {
       enabled: true,
-      amount: new BigNumber(1).times(1e18), // 1 MTR each time
+      amount: new BigNumber(3).times(1e17), // 0.3 MTR each time
     },
     tapMTRG: {
       enabled: false,
-      amount: new BigNumber(1).times(1e18),
+      amount: new BigNumber(0).times(1e18),
     },
   },
 

@@ -28,7 +28,7 @@ class WalletService {
 
       // config tx parameters, e.g. expiration, gasPriceCoef
       this.driver.txParams.expiration = 18;
-      this.driver.txParams.gasPriceCoef = 128;
+      this.driver.txParams.gasPriceCoef = 0;
 
       // watch committed tx
       this.driver.onTxCommit = (txObj: any) => {
@@ -37,19 +37,22 @@ class WalletService {
     });
   }
 
-  public async getBalance(addr: string): Promise<number> {
+  public async getBalance(addr: string): Promise<BigNumber> {
     try {
       const base = getNetworkBase(FAUCET_NETWORK);
       const url = `${base}/accounts/${addr}`;
+      console.log('URL: ', url);
       const res = await axios.get(url);
       if (res.status !== 200) {
-        return -1;
+        return new BigNumber(-1);
       }
-      const balance = parseInt(res.data.balance, 16);
-      return balance;
+      const balance = new BigNumber(res.data.balance);
+      const boundbalance = new BigNumber(res.data.boundbalance);
+      console.log('BALANCE: ', balance.plus(boundbalance));
+      return balance.plus(boundbalance);
     } catch (e) {
       console.log('Error Happened: ', e.message);
-      return -1;
+      return new BigNumber(-1);
     }
   }
 
