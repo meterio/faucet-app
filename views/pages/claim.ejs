@@ -95,13 +95,19 @@
           <h3 class="text-center">Claim your MTR token on 
             <span class="badge badge-dark" style='margin-bottom:10px;'><%= isMainnet ? 'Mainnet' : 'Testnet'%> </span>
           </h3> 
-          <div class='alert alert-success mb-2'>
+          <div class='alert alert-primary mb-2'>
             <b>Rules:</b>
             <ol>
-              <li>At least 1 MTRG in given address to claim MTR</li>
+              <% if (isMainnet) {%>
+                <li>At least 1 MTRG in given address to claim MTR</li>
+              <%}%>
               <li>One IP could only claim once within 24 hours</li>
               <li>One address could only claim once</li>
-              <li>Each valid time, 0.3 MTR will be issued to given address</li>
+              <% if (isMainnet) {%>
+                <li>Each valid time, 0.3 MTR will be issued to given address</li>
+              <%} else {%>
+                <li>Each valid time, 2000 MTR and 3000 MTRG will be issued to given address</li>
+              <%}%>
             </ol>
           </div>
           <form id="claimForm" action="/taps" method="POST">
