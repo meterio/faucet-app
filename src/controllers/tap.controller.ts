@@ -6,7 +6,10 @@ import AlreadyTappedIn24HoursException from '../exceptions/AlreadyTappedIn24Hour
 import WalletService from '../services/wallet.service';
 import TapRepo from '../repos/tap.repo';
 import ServiceNotReadyException from '../exceptions/ServiceNotReadyException';
+import InvalidCaptchaException from '../exceptions/InvalidCaptchaException';
 import BigNumber from 'bignumber.js';
+import axios from 'axios';
+import { runInNewContext } from 'vm';
 
 const { FAUCET_NETWORK, FAUCET_ADDR } = process.env;
 class TapController implements Controller {
@@ -20,7 +23,7 @@ class TapController implements Controller {
   }
 
   private initializeRoutes() {
-    this.router.get(`${this.path}/:address`, this.execTap);
+    // this.router.get(`${this.path}/:address`, this.execTap);
     this.router.get(`${this.path}/:address/history`, this.getHistoryTaps);
     this.router.post(`${this.path}`, this.execTap);
     this.router.get(`${this.path}/`, this.getAllTaps);
@@ -69,6 +72,25 @@ class TapController implements Controller {
     response: Response,
     next: NextFunction
   ) => {
+    // check captcha
+    const captcha = request.body.captcha;
+    if (!captcha) {
+      return next(new InvalidCaptchaException());
+    }
+    console.log(captcha);
+    const secret = '6Lehu6oaAAAAAINvGK3O0stKztQeuNlJbWBPNrLR';
+    const res = await axios.post(
+      `https://www.google.com/recaptcha/api/siteverify?secret=${secret}&response=${captcha}`
+    );
+    try {
+      console.log('res.data: ', res.data);
+      if (!res.data.success) {
+        return next(new InvalidCaptchaException());
+      }
+    } catch (e) {
+      return next(e);
+    }
+
     // check tap within 24 hours by the same ip
     const ipAddr = request.headers['x-forwarded-for']
       ? <string>request.headers['x-forwarded-for']
@@ -81,7 +103,6 @@ class TapController implements Controller {
     }
 
     const rules = request.app.get('tap-rules');
-
     // check tap with the same address
     const address = request.params.address || request.body.address;
     const tap = await this.tapRepo.findByTo(address);

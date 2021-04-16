@@ -43,9 +43,16 @@
         e.preventDefault();
         var $form = $("#claimForm");
         var data = getFormData($form);
+        console.log("grecaptcha: ", grecaptcha);
+        var captcha = grecaptcha.getResponse();
+        console.log('captcha:', captcha);
+        if (!captcha){
+          return showError("Please check the recaptcha")
+        }
         if (!data.address) {
           return showError("The address is required");
         }
+        data.captcha = captcha;
         displayLoading();
         $.post("/taps", data)
           .then(function(res) {
@@ -90,19 +97,17 @@
       <div class="row" style="margin-top:5rem">
         <div
           class="col-sm-12 col-md-6 offset-sm-0 offset-md-3"
-          style="background:white;padding:4rem 2rem 2rem 2rem; border-radius: 4px; border:1px solid #e7e7e7;"
+          style="background:white;padding:3rem 2rem 2rem 2rem; border-radius: 4px; border:1px solid #e7e7e7;"
         >
-          <div class="row" style="margin-bottom:3rem;">
-            <div class="col-8 offset-2">
+            <div style="display:flex; justify-content: center; margin-bottom: 2rem;">
               <a href="https://www.meter.io">
-              <img src="/img/logo-green.png" class="img-fluid" alt="" />
+              <img src="/img/logo.png" class="img-fluid" style='height:130px' alt="" />
              </a> 
             </div>
-          </div>
           
-          <h3 class="text-center">Claim your MTR token on 
+          <h4 class="text-center">Claim your MTR token on 
             <span class="badge badge-dark" style='margin-bottom:10px;'><%= isMainnet ? 'Mainnet' : 'Testnet'%> </span>
-          </h3> 
+          </h4> 
           <div class='alert alert-primary mb-2'>
             <b>Rules:</b>
             <ol>
@@ -120,12 +125,16 @@
           </div>
           <form id="claimForm" action="/taps" method="POST">
             <input
+              style="margin-top:1rem"
               class="form-control"
               placeholder="Type in your meter address"
               type="text"
               name="address"
+              autofocus="true"
             />
+            <div style="display:flex; justify-content: center; margin-top:1rem; margin-bottom:1rem;">
             <div class="g-recaptcha" data-sitekey="6Lehu6oaAAAAAEKk9lyGSpPzkhyCAOc_Fpr3swjG"></div>
+            </div>
             <button
               id="submitBtn"
               class="btn btn-block btn-lg btn-primary"
