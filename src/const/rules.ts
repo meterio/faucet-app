@@ -1,5 +1,4 @@
 import BigNumber from 'bignumber.js';
-import { Network } from './network';
 
 export const NetworkBase: { [key: string]: string } = {
   mainnet: 'https://mainnet.meter.io',
@@ -13,7 +12,7 @@ export const TapRules: { [key: string]: any } = {
     },
     tapMTR: {
       enabled: true,
-      amount: new BigNumber(3).times(1e17), // 0.3 MTR each time
+      amount: new BigNumber(1).times(1e17), // 0.1 MTR each time
     },
     tapMTRG: {
       enabled: false,
