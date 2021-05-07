@@ -8,15 +8,11 @@
     <script src="/bootstrap/js/bootstrap.min.js" ></script>
 
     <!-- ReCaptcha v2-->
+    
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-
     <!-- Font Awesome -->
     <link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css" />
-    <script>
-      function onSubmit(token) {
-        document.getElementById("demo-form").submit();
-      }
-    </script>
+    
     <script type="text/javascript">
       function getFormData($form) {
         var unindexed_array = $form.serializeArray();
@@ -39,8 +35,7 @@
         $('#submitBtn').attr('disabled',false);
       }
 
-      function onSubmit(e) {
-        e.preventDefault();
+      function onSubmit(token) {
         var $form = $("#claimForm");
         var data = getFormData($form);
         console.log("grecaptcha: ", grecaptcha);
@@ -90,7 +85,10 @@
         html+='</div>'
         $("#hints").html(html);
       }
-    </script>
+
+   
+
+      </script>
   </head>
   <body style="background:#f5f5f5">
     <div class="container">
@@ -133,13 +131,18 @@
               autofocus="true"
             />
             <div style="display:flex; justify-content: center; margin-top:1rem; margin-bottom:1rem;">
-            <div class="g-recaptcha" data-sitekey="6Lehu6oaAAAAAEKk9lyGSpPzkhyCAOc_Fpr3swjG"></div>
-            </div>
+            
+            
+            
+              
+          </div>
             <button
               id="submitBtn"
-              class="btn btn-block btn-lg btn-primary"
+              class="g-recaptcha btn btn-block btn-lg btn-primary"
               style="margin-top:10px"
-              onclick="onSubmit(event)"
+              data-sitekey="6LfZJsoaAAAAAM-QqqRseYmOs58fzRRtT-dUNULU"
+              data-callback='onSubmit'
+            
             />Claim Now</button>
             <div id="hints" style="margin-top:2rem"></div>
           </form>
