@@ -1,150 +1,203 @@
 <html>
-  <head>
-    <!-- jQuery -->
-    <script src="/js/jquery-3.4.1.min.js" ></script>
 
-    <!-- Bootstrap -->
-    <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
-    <script src="/bootstrap/js/bootstrap.min.js" ></script>
+<head>
+  <!-- jQuery -->
+  <script src="/js/jquery-3.4.1.min.js"></script>
 
-    <!-- ReCaptcha v2-->
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <!-- Bootstrap -->
+  <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+  <script src="/bootstrap/js/bootstrap.min.js"></script>
 
-    <!-- Font Awesome -->
-    <link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css" />
-    <script>
-      function onSubmit(token) {
-        document.getElementById("demo-form").submit();
+  <!-- ReCaptcha v2-->
+
+  <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css" />
+
+  <script type="text/javascript">
+
+
+    var q_a_answer = 0;
+
+
+
+    function generateQuestion() {
+      var questionTypes = ["What is", "Calculate", "Evaluate", "What is the answer to"];
+      var operatorTypes = ["*", "+", "-"]
+      var question = questionTypes[Math.floor(Math.random() * 4)];
+      var operator = operatorTypes[Math.floor(Math.random() * 3)];
+      var randomNr1 = Math.floor(Math.random() * 10) || Math.floor(Math.random() * 100);
+      var randomNr2 = Math.floor(Math.random() * 10) || Math.floor(Math.random() * 100);
+      var problem = randomNr1 + " " + operator + " " + randomNr2;
+      var questionString = question + " " + problem + " ?";
+      document.getElementById("question_containter").innerText = questionString;
+      q_a_answer = eval(problem);
+
+    }
+
+
+    setTimeout(generateQuestion, 2000);
+    setInterval(generateQuestion, 50000);
+
+
+    function getFormData($form) {
+      var unindexed_array = $form.serializeArray();
+      var indexed_array = {};
+
+      $.map(unindexed_array, function (n, i) {
+        indexed_array[n["name"]] = n["value"];
+      });
+
+      return indexed_array;
+    }
+
+    function displayLoading() {
+      $('#submitBtn').html('<span class="spinner-border spinner-border-sm text-light" role="status"> <span class="sr-only"></span></span> Loading ...')
+      $('#submitBtn').attr('disabled', true);
+    }
+
+    function displayClaimNow() {
+      $('#submitBtn').html('Claim Now');
+      $('#submitBtn').attr('disabled', false);
+    }
+
+
+
+    function onSubmit(e) {
+      e.preventDefault();
+      var $form = $("#claimForm");
+      var data = getFormData($form);
+      console.log("grecaptcha: ", grecaptcha);
+      var captcha = grecaptcha.getResponse();
+      console.log('captcha:', captcha);
+      if ($("#q_a_val").val() === '') {
+
+        return showError("Please provide an answer to the question")
+
       }
-    </script>
-    <script type="text/javascript">
-      function getFormData($form) {
-        var unindexed_array = $form.serializeArray();
-        var indexed_array = {};
+      var ans_input = Number($("#q_a_val").val()) === q_a_answer;
+      
+      if (!ans_input) {
+        return showError("Please check your answer to the question")
+      }
 
-        $.map(unindexed_array, function(n, i) {
-          indexed_array[n["name"]] = n["value"];
+      if (!captcha) {
+        return showError("Please check the recaptcha")
+      }
+
+      if (!data.address) {
+        return showError("The address is required");
+      }
+      data.captcha = captcha;
+      displayLoading();
+      $.post("/taps", data)
+        .then(function (res) {
+          console.log(res);
+          if (res.error) {
+            showError(res.error);
+          } else {
+            showInfo(res.message, res.links);
+          }
+          displayClaimNow();
+        })
+        .catch(function (err) {
+          console.log(err);
+          if (err.responseJSON && err.responseJSON.message) {
+            showError(err.responseJSON.message)
+          } else {
+            showError("communication error");
+          }
+          displayClaimNow();
         });
+    }
 
-        return indexed_array;
+    function showError(msg) {
+      $("#hints").html(
+        '<div class="alert alert-danger alert-dismissable fade show"><button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button><h4>Ooops...</h4><p>' +
+        msg +
+        "</p></div>"
+      );
+    }
+    function showInfo(msg, links) {
+      let html = '<div class="alert alert-success alert-dismissable fade show"><button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button><h4>Well Done!</h4><p>' + msg + '</p>'
+      for (const link of links) {
+        html += `<p><a href='${link.url}'>${link.text}</a></p>`
       }
+      html += '</div>'
+      $("#hints").html(html);
+    }
 
-      function displayLoading(){
-        $('#submitBtn').html('<span class="spinner-border spinner-border-sm text-light" role="status"> <span class="sr-only"></span></span> Loading ...')
-        $('#submitBtn').attr('disabled',true);
-      }
 
-      function displayClaimNow(){
-        $('#submitBtn').html('Claim Now');
-        $('#submitBtn').attr('disabled',false);
-      }
+  </script>
+</head>
 
-      function onSubmit(e) {
-        e.preventDefault();
-        var $form = $("#claimForm");
-        var data = getFormData($form);
-        console.log("grecaptcha: ", grecaptcha);
-        var captcha = grecaptcha.getResponse();
-        console.log('captcha:', captcha);
-        if (!captcha){
-          return showError("Please check the recaptcha")
-        }
-        if (!data.address) {
-          return showError("The address is required");
-        }
-        data.captcha = captcha;
-        displayLoading();
-        $.post("/taps", data)
-          .then(function(res) {
-            console.log(res);
-            if (res.error) {
-              showError(res.error);
-            } else {
-              showInfo(res.message, res.links);
-            }
-            displayClaimNow();
-          })
-          .catch(function(err) {
-            console.log(err);
-            if (err.responseJSON && err.responseJSON.message){
-              showError(err.responseJSON.message)
-            } else {
-              showError("communication error");
-            }
-            displayClaimNow();
-          });
-      }
-
-      function showError(msg) {
-        $("#hints").html(
-          '<div class="alert alert-danger alert-dismissable fade show"><button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button><h4>Ooops...</h4><p>' +
-            msg +
-            "</p></div>"
-        );
-      }
-      function showInfo(msg, links) {
-        let html = '<div class="alert alert-success alert-dismissable fade show"><button type="button" class="close" data-dismiss="alert" aria-label="Close"> <span aria-hidden="true">&times;</span> </button><h4>Well Done!</h4><p>' + msg+'</p>'
-        for (const link of links){
-          html += `<p><a href='${link.url}'>${link.text}</a></p>`
-        }
-        html+='</div>'
-        $("#hints").html(html);
-      }
-    </script>
-  </head>
-  <body style="background:#f5f5f5">
-    <div class="container">
-      <div class="row" style="margin-top:5rem">
-        <div
-          class="col-sm-12 col-md-6 offset-sm-0 offset-md-3"
-          style="background:white;padding:3rem 2rem 2rem 2rem; border-radius: 4px; border:1px solid #e7e7e7;"
-        >
-            <div style="display:flex; justify-content: center; margin-bottom: 2rem;">
-              <a href="https://www.meter.io">
-              <img src="/img/logo.png" class="img-fluid" style='height:130px' alt="" />
-             </a> 
-            </div>
-          
-          <h4 class="text-center">Claim your MTR token on 
-            <span class="badge badge-dark" style='margin-bottom:10px;'><%= isMainnet ? 'Mainnet' : 'Testnet'%> </span>
-          </h4> 
-          <div class='alert alert-primary mb-2'>
-            <b>Rules:</b>
-            <ol>
-              <% if (isMainnet) {%>
-                <li>At least 1 MTRG in given address to claim MTR</li>
-              <%}%>
-              <li>One IP could only claim once within 24 hours</li>
-              <li>One address could only claim once</li>
-              <% if (isMainnet) {%>
-                <li>Each valid time, 0.1 MTR will be issued to given address</li>
-              <%} else {%>
-                <li>Each valid time, 2000 MTR and 3000 MTRG will be issued to given address</li>
-              <%}%>
-            </ol>
-          </div>
-          <form id="claimForm" action="/taps" method="POST">
-            <input
-              style="margin-top:1rem"
-              class="form-control"
-              placeholder="Type in your meter address"
-              type="text"
-              name="address"
-              autofocus="true"
-            />
-            <div style="display:flex; justify-content: center; margin-top:1rem; margin-bottom:1rem;">
-            <div class="g-recaptcha" data-sitekey="6Lehu6oaAAAAAEKk9lyGSpPzkhyCAOc_Fpr3swjG"></div>
-            </div>
-            <button
-              id="submitBtn"
-              class="btn btn-block btn-lg btn-primary"
-              style="margin-top:10px"
-              onclick="onSubmit(event)"
-            />Claim Now</button>
-            <div id="hints" style="margin-top:2rem"></div>
-          </form>
+<body style="background:#f5f5f5">
+  <div class="container">
+    <div class="row" style="margin-top:5rem">
+      <div class="col-sm-12 col-md-6 offset-sm-0 offset-md-3"
+        style="background:white;padding:3rem 2rem 2rem 2rem; border-radius: 4px; border:1px solid #e7e7e7;">
+        <div style="display:flex; justify-content: center; margin-bottom: 2rem;">
+          <a href="https://www.meter.io">
+            <img src="/img/logo.png" class="img-fluid" style='height:130px' alt="" />
+          </a>
         </div>
+
+        <h4 class="text-center">Claim your MTR token on
+          <span class="badge badge-dark" style='margin-bottom:10px;'>
+            <%= isMainnet ? 'Mainnet' : 'Testnet' %>
+          </span>
+        </h4>
+        <div class='alert alert-primary mb-2'>
+          <b>Rules:</b>
+          <ol>
+            <% if (isMainnet) {%>
+              <li>At least 1 MTRG in given address to claim MTR</li>
+              <%}%>
+                <li>One IP could only claim once within 24 hours</li>
+                <li>One address could only claim once</li>
+                <% if (isMainnet) {%>
+                  <li>Each valid time, 0.1 MTR will be issued to given address</li>
+                  <%} else {%>
+                    <li>Each valid time, 2000 MTR and 3000 MTRG will be issued to given address</li>
+                    <%}%>
+          </ol>
+        </div>
+        <form id="claimForm" action="/taps" method="POST">
+          <input style="margin-top:1rem" class="form-control" placeholder="Type in your meter address" type="text"
+            name="address" id="address" autofocus="true" />
+          <div style="display:flex; justify-content: center; margin-top:1rem; margin-bottom:1rem;">
+          </div>
+          <div class="g-recaptcha" data-sitekey="6Lc0c84aAAAAACxBCFqDltUqOKAzX5zmlJ0c1TpK"></div>
+          <br />
+          <span><b id="question_containter">Evaluate 4 + 6</b> Answer :
+            <input style="margin-top:1rem" class="form-control" name="q_a_val" placeholder="Type in your meter address"
+              maxLength="5" pattern="/^-?\d+\.?\d*$/" onKeyPress="if(this.value.length==5) return false;" type="number"
+              autofocus="true" id="q_a_val" />
+
+          </span>
+          <button id="submitBtn" class="btn btn-block btn-lg btn-primary" style="margin-top:10px"
+            onclick="onSubmit(event)" />Claim Now</button>
+          <div id="hints" style="margin-top:2rem"></div>
+        </form>
       </div>
     </div>
-  </body>
+  </div>
+
+  <script>
+    $(document).ready(function () {
+      $("#submitBtn").attr("disabled", true);
+      $('input[name=q_a_val]').on('keyup', function (e) {
+
+
+        if (q_a_answer === Number(e.target.value)) {
+          $("#submitBtn").attr("disabled", false);
+        } else {
+          $("#submitBtn").attr("disabled", true);
+        }
+      });
+
+    })
+  </script>
+</body>
+
 </html>

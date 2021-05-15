@@ -78,7 +78,7 @@ class TapController implements Controller {
       return next(new InvalidCaptchaException());
     }
     console.log(captcha);
-    const secret = '6Lehu6oaAAAAAINvGK3O0stKztQeuNlJbWBPNrLR';
+    const secret = '6Lc0c84aAAAAANUdclsevBEALskl-7wBBEeT6SNs';
     const res = await axios.post(
       `https://www.google.com/recaptcha/api/siteverify?secret=${secret}&response=${captcha}`
     );
