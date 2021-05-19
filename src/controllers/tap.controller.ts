@@ -10,8 +10,11 @@ import InvalidCaptchaException from '../exceptions/InvalidCaptchaException';
 import BigNumber from 'bignumber.js';
 import axios from 'axios';
 import { runInNewContext } from 'vm';
+import * as csrf from 'csurf';
 
 const { FAUCET_NETWORK, FAUCET_ADDR } = process.env;
+const csrfProtection = csrf({ cookie: true });
+
 class TapController implements Controller {
   public path = '/taps';
   public router = Router();
@@ -25,7 +28,7 @@ class TapController implements Controller {
   private initializeRoutes() {
     // this.router.get(`${this.path}/:address`, this.execTap);
     this.router.get(`${this.path}/:address/history`, this.getHistoryTaps);
-    this.router.post(`${this.path}`, this.execTap);
+    this.router.post(`${this.path}`, csrfProtection, this.execTap);
     this.router.get(`${this.path}/`, this.getAllTaps);
   }
 
@@ -75,7 +78,8 @@ class TapController implements Controller {
     // check captcha
     const captcha = request.body.captcha;
     if (!captcha) {
-      return next(new InvalidCaptchaException());
+      next(new InvalidCaptchaException());
+      return;
     }
     console.log(captcha);
     const secret = '6Lc0c84aAAAAANUdclsevBEALskl-7wBBEeT6SNs';
@@ -85,10 +89,12 @@ class TapController implements Controller {
     try {
       console.log('res.data: ', res.data);
       if (!res.data.success) {
-        return next(new InvalidCaptchaException());
+        next(new InvalidCaptchaException());
+        return;
       }
     } catch (e) {
-      return next(e);
+      next(e);
+      return;
     }
 
     // check tap within 24 hours by the same ip
@@ -99,7 +105,8 @@ class TapController implements Controller {
     const recentTaps = await this.tapRepo.findRecentTapsByIP(ipAddr);
     if (recentTaps && recentTaps.length > 0) {
       console.log('already tapped with this ip address:', ipAddr);
-      return next(new AlreadyTappedIn24HoursException(ipAddr));
+      next(new AlreadyTappedIn24HoursException(ipAddr));
+      return;
     }
 
     const rules = request.app.get('tap-rules');
@@ -108,7 +115,8 @@ class TapController implements Controller {
     const tap = await this.tapRepo.findByTo(address);
     if (tap && tap.length > 0) {
       console.log('already tapped address: ', address);
-      return next(new AlreadyTappedException(address));
+      next(new AlreadyTappedException(address));
+      return;
     }
 
     // check mtrg balance if reuqired
@@ -119,7 +127,8 @@ class TapController implements Controller {
         console.log('NOT ENOUGH');
         console.log(balance.toFixed());
         console.log(minMTRGBalance.toFixed());
-        return next(new NotEnoughBalanceException(address));
+        next(new NotEnoughBalanceException(address));
+        return;
       }
     }
 
@@ -135,7 +144,8 @@ class TapController implements Controller {
       const amount = rules.tapMTR.amount;
       const mtrTx = await this.wallet.transferMTR(address, amount); // transfer 0.05 MTR to target address
       if (!mtrTx) {
-        return next(new ServiceNotReadyException());
+        next(new ServiceNotReadyException());
+        return;
       }
       txs.push({ hash: mtrTx.txid, amount, token: 'MTR' });
       msgs.push(`${amount.dividedBy(1e18).toFixed()} MTR`);
@@ -149,7 +159,8 @@ class TapController implements Controller {
       const amount = rules.tapMTRG.amount;
       const mtrgTx = await this.wallet.transferMTRG(address, amount); // transfer 0.05 MTR to target address
       if (!mtrgTx) {
-        return next(new ServiceNotReadyException());
+        next(new ServiceNotReadyException());
+        return;
       }
       txs.push({ hash: mtrgTx.txid, amount, token: 'MTRG' });
       if (msgs.length >= 1) {

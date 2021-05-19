@@ -67,9 +67,7 @@
       e.preventDefault();
       var $form = $("#claimForm");
       var data = getFormData($form);
-      console.log("grecaptcha: ", grecaptcha);
       var captcha = grecaptcha.getResponse();
-      console.log('captcha:', captcha);
       if ($("#q_a_val").val() === '') {
 
         return showError("Please provide an answer to the question")
@@ -92,7 +90,6 @@
       displayLoading();
       $.post("/taps", data)
         .then(function (res) {
-          console.log(res);
           if (res.error) {
             showError(res.error);
           } else {
@@ -101,7 +98,6 @@
           displayClaimNow();
         })
         .catch(function (err) {
-          console.log(err);
           if (err.responseJSON && err.responseJSON.message) {
             showError(err.responseJSON.message)
           } else {
@@ -163,6 +159,8 @@
           </ol>
         </div>
         <form id="claimForm" action="/taps" method="POST">
+          <input type="hidden" name="_csrf" value="<%=csrfToken%>">
+
           <input style="margin-top:1rem" class="form-control" placeholder="Type in your meter address" type="text"
             name="address" id="address" autofocus="true" />
           <div style="display:flex; justify-content: center; margin-top:1rem; margin-bottom:1rem;">
