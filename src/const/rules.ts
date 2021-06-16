@@ -9,6 +9,7 @@ export const TapRules: { [key: string]: any } = {
   mainnet: {
     prerequisite: {
       minimalMTRGBalance: new BigNumber(1).times(1e18), // 1 MTRG required as balance to enable tap
+      maximumMTRBalance: new BigNumber(0),
     },
     tapMTR: {
       enabled: true,
@@ -18,11 +19,16 @@ export const TapRules: { [key: string]: any } = {
       enabled: false,
       amount: new BigNumber(0).times(1e18),
     },
+    checkWhiteList:{
+      enabled:true
+    }
+   
   },
 
   testnet: {
     prerequisite: {
       minimalMTRGBalance: new BigNumber(0), // no minimum required
+      maximumMTRBalance: new BigNumber(0),
     },
     tapMTR: {
       enabled: true,
@@ -32,6 +38,9 @@ export const TapRules: { [key: string]: any } = {
       enabled: true,
       amount: new BigNumber(3000).times(1e18), // MTRG each tap
     },
+    checkWhiteList:{
+      enabled:false
+    }
   },
 };
 
