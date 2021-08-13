@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 import Tap from './tap.interface';
-const txSchema = new mongoose.Schema(
+const txSchema = new mongoose.Schema<Tap>(
   {
     hash: { type: String, required: true },
     amount: { type: String, required: true }, // value in Wei
@@ -15,14 +15,6 @@ const tapSchema = new mongoose.Schema({
   txs: { type: [txSchema], required: true },
   timestamp: { type: Number },
   ipAddr: { type: String, required: true },
-});
-
-tapSchema.set('toJSON', {
-  virtuals: false,
-  transform: (doc, ret, options) => {
-    delete ret.__v;
-    delete ret._id;
-  },
 });
 
 const tapModel = mongoose.model<Tap & mongoose.Document>('Tap', tapSchema);
