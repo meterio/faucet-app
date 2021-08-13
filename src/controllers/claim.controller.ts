@@ -18,6 +18,7 @@ class ClaimController implements Controller {
       const isMainnet = FAUCET_NETWORK!.toLowerCase() === 'mainnet';
       console.log('isMainnet:', isMainnet);
       const rules = req.app.get('tap-rules');
+      req.app.set('is-mainnet', isMainnet);
       // console.log('rules', rules);
       res.render('pages/claim', { isMainnet, csrfToken: req.csrfToken() });
     });

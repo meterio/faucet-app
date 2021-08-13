@@ -37,7 +37,27 @@ class WalletService {
     });
   }
 
-  public async getBalance(addr: string): Promise<BigNumber> {
+  public async getMTRBalance(addr: string): Promise<BigNumber> {
+    try {
+      const base = getNetworkBase(FAUCET_NETWORK);
+      const url = `${base}/accounts/${addr}`;
+      console.log('URL: ', url);
+      const res = await axios.get(url);
+      if (res.status !== 200) {
+        return new BigNumber(-1);
+      }
+      const energy = new BigNumber(res.data.energy);
+      const boundenergy = new BigNumber(res.data.boundenergy);
+      const mtr = energy.plus(boundenergy);
+      console.log('MTR BALANCE: ', mtr.toFixed());
+      return mtr;
+    } catch (e) {
+      console.log('Error Happened: ', e.message);
+      return new BigNumber(-1);
+    }
+  }
+
+  public async getMTRGBalance(addr: string): Promise<BigNumber> {
     try {
       const base = getNetworkBase(FAUCET_NETWORK);
       const url = `${base}/accounts/${addr}`;
@@ -48,8 +68,9 @@ class WalletService {
       }
       const balance = new BigNumber(res.data.balance);
       const boundbalance = new BigNumber(res.data.boundbalance);
-      console.log('BALANCE: ', balance.plus(boundbalance));
-      return balance.plus(boundbalance);
+      const mtrg = balance.plus(boundbalance);
+      console.log('MTRG BALANCE: ', mtrg.toFixed());
+      return mtrg;
     } catch (e) {
       console.log('Error Happened: ', e.message);
       return new BigNumber(-1);

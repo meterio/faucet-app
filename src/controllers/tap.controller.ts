@@ -4,7 +4,6 @@ import AlreadyTappedException from '../exceptions/AlreadyTappedException';
 import NotEnoughBalanceException from '../exceptions/NotEnoughBalanceException';
 import EnoughMTRBalanceException from '../exceptions/EnoughMTRBalanceException';
 import NotInWhiteListException from '../exceptions/NotInWhiteListException';
-import MTRBalanceService from '../services/mtrbalance.service';
 import isWhiteListVerified from '../services/transaction.service';
 import AlreadyTappedIn24HoursException from '../exceptions/AlreadyTappedIn24HoursException';
 import WalletService from '../services/wallet.service';
@@ -16,7 +15,6 @@ import axios from 'axios';
 import { runInNewContext } from 'vm';
 import * as csrf from 'csurf';
 
-
 const { FAUCET_NETWORK, FAUCET_ADDR } = process.env;
 const csrfProtection = csrf({ cookie: true });
 
@@ -25,7 +23,6 @@ class TapController implements Controller {
   public router = Router();
   private tapRepo = new TapRepo();
   private wallet = new WalletService();
-  private mtrService = new MTRBalanceService();
 
   constructor() {
     this.initializeRoutes();
@@ -81,10 +78,9 @@ class TapController implements Controller {
     response: Response,
     next: NextFunction
   ) => {
-
     // check captcha
     const captcha = request.body.captcha;
-    
+
     if (!captcha) {
       next(new InvalidCaptchaException());
       return;
@@ -104,12 +100,6 @@ class TapController implements Controller {
       next(e);
       return;
     }
-
-  
-    
-    
-
-   
 
     // check tap within 24 hours by the same ip
     const ipAddr = request.headers['x-forwarded-for']
@@ -133,15 +123,11 @@ class TapController implements Controller {
       return;
     }
 
-    
-
-
-    
     // check mtrg balance if reuqired
     const minMTRGBalance = rules.prerequisite.minimalMTRGBalance;
 
     if (minMTRGBalance.isGreaterThan(0)) {
-      const balance = await this.wallet.getBalance(address);
+      const balance = await this.wallet.getMTRGBalance(address);
       if (!balance.isGreaterThanOrEqualTo(minMTRGBalance)) {
         console.log('NOT ENOUGH');
         console.log(balance.toFixed());
@@ -154,30 +140,26 @@ class TapController implements Controller {
     //check if user's mtr balance is equal to 0
 
     const maxMTRBalance = rules.prerequisite.maximumMTRBalance;
-    const mtrbalance = await this.mtrService.getBalance(address);
-    if(!(maxMTRBalance.eq(mtrbalance))){
+    const mtrbalance = await this.wallet.getMTRBalance(address);
+    if (!maxMTRBalance.eq(mtrbalance)) {
       console.log('ENOUGH MTR');
       console.log(mtrbalance);
       console.log(maxMTRBalance.toFixed());
       next(new EnoughMTRBalanceException(address));
       return;
-
     }
 
     //check if the last transaction of the address is from one of the approved addresses
     const checkwhitelist = rules.checkWhiteList.enabled;
-    if(checkwhitelist){
-      const isVerified = await isWhiteListVerified(address)
-      if(!isVerified){
+    if (checkwhitelist) {
+      const isVerified = await isWhiteListVerified(address);
+      if (!isVerified) {
         console.log('LAST TRANSACTION NOT FROM APPROVED ADDRESS');
         next(new NotInWhiteListException(address));
         return;
       }
     }
-   
-    
 
-   
     // start tapping
     console.log('tap for address:', address);
     let txs = [];
@@ -248,7 +230,7 @@ class TapController implements Controller {
       links,
       message: `Address ${address} has been isssued ${msgs.join(' ')}`,
     });
-   };
+  };
 }
 
 export default TapController;
