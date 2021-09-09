@@ -7,6 +7,7 @@ const while_list = [
   '0x6f04787447975b40d29611833711117ed9de155f',
   '0x40df6f787bf8bd3fba3b2ef5a742ae0c993f1418', // rebate address
   '0x60f1abaa3ed8a573c91c65a5b82aec4bf35b77b8', // meter bridge erc20 handler
+  '0x3f396af107049232bc2804c171ecad65dbcc0323', // meter bridge address
 ];
 
 const getTotalCount = async (address: string) => {
@@ -29,7 +30,7 @@ const isWhiteListVerified = async (address: string) => {
     var lastOrigin = allTransactions.data.txSummaries[0].origin;
     console.log(lastOrigin);
 
-    if (while_list.includes(lastOrigin)) {
+    if (while_list.includes(lastOrigin.toLowerCase())) {
       hasAccess = true;
     }
   }
