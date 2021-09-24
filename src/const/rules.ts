@@ -13,16 +13,15 @@ export const TapRules: { [key: string]: any } = {
     },
     tapMTR: {
       enabled: true,
-      amount: new BigNumber(1).times(1e17), // 0.1 MTR each time
+      amount: new BigNumber(3).times(1e17), // 0.1 MTR each time
     },
     tapMTRG: {
       enabled: false,
       amount: new BigNumber(0).times(1e18),
     },
-    checkWhiteList:{
-      enabled:true
-    }
-   
+    checkWhiteList: {
+      enabled: true,
+    },
   },
 
   testnet: {
@@ -38,9 +37,9 @@ export const TapRules: { [key: string]: any } = {
       enabled: true,
       amount: new BigNumber(3000).times(1e18), // MTRG each tap
     },
-    checkWhiteList:{
-      enabled:false
-    }
+    checkWhiteList: {
+      enabled: false,
+    },
   },
 };
 
