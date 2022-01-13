@@ -2,7 +2,7 @@ import BigNumber from 'bignumber.js';
 
 export const NetworkBase: { [key: string]: string } = {
   mainnet: 'https://mainnet.meter.io',
-  testnet: 'https://warringstakes.meter.io',
+  testnet: 'https://test-rpc0.stp.network',
 };
 
 export const TapRules: { [key: string]: any } = {
