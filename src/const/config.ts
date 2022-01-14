@@ -1,2 +1,2 @@
-export const SYSTEM_COIN = 'MTR'
-export const SYSTEM_TOKEN = 'MTRG'
+export const SYSTEM_COIN = 'STPT'
+export const SYSTEM_TOKEN = 'STPD'
