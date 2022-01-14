@@ -14,7 +14,7 @@ import BigNumber from 'bignumber.js';
 import axios from 'axios';
 import { runInNewContext } from 'vm';
 import * as csrf from 'csurf';
-import { SYSTEM_COIN, SYSTEM_TOKEN } from '../const/config';
+import { Explorer_MainNet, Explorer_TestNet, SYSTEM_COIN, SYSTEM_TOKEN } from '../const/config';
 
 const { FAUCET_NETWORK, FAUCET_ADDR } = process.env;
 const csrfProtection = csrf({ cookie: true });
@@ -46,8 +46,8 @@ class TapController implements Controller {
     let entries = [];
     const linkPrefix =
       FAUCET_NETWORK!.toLowerCase() === 'mainnet'
-        ? 'https://explorer.meter.io/tx/'
-        : 'https://explorer-warringstakes.meter.io/tx/';
+        ? `${Explorer_MainNet}/tx/`
+        : `${Explorer_TestNet}/tx/`;
     for (const tap of taps) {
       for (const tx of tap.txs) {
         entries.push({
@@ -215,14 +215,14 @@ class TapController implements Controller {
           text: `Tx for ${new BigNumber(tx.amount).dividedBy(1e18).toFixed()} ${
             tx.token
           }`,
-          url: `https://explorer.meter.io/tx/${tx.hash}`,
+          url: `${Explorer_MainNet}/tx/${tx.hash}`,
         });
       } else {
         links.push({
           text: `Tx for ${new BigNumber(tx.amount).dividedBy(1e18).toFixed()} ${
             tx.token
           }`,
-          url: `https://explorer-warringstakes.meter.io/tx/${tx.hash}`,
+          url: `${Explorer_TestNet}/tx/${tx.hash}`,
         });
       }
     }

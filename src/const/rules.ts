@@ -1,8 +1,9 @@
 import BigNumber from 'bignumber.js';
+import { RPC_MainNet, RPC_TestNet } from './config';
 
 export const NetworkBase: { [key: string]: string } = {
-  mainnet: 'https://mainnet.meter.io',
-  testnet: 'https://test-rpc0.stp.network',
+  mainnet: RPC_MainNet,
+  testnet: RPC_TestNet,
 };
 
 export const TapRules: { [key: string]: any } = {
