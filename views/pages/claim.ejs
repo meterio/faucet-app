@@ -16,6 +16,8 @@
 
   <script type="text/javascript">
 
+    let SYSTEM_COIN = 'MTR'
+    let SYSTEM_TOKEN = 'MTRG'
 
     var q_a_answer = 0;
 
@@ -138,7 +140,7 @@
           </a>
         </div>
 
-        <h4 class="text-center">Claim your MTR token on
+        <h4 class="text-center">Claim your <%= SYSTEM_COIN %> token on
           <span class="badge badge-dark" style='margin-bottom:10px;'>
             <%= isMainnet ? 'Mainnet' : 'Testnet' %>
           </span>
@@ -147,14 +149,14 @@
           <b>Rules:</b>
           <ol>
             <% if (isMainnet) {%>
-              <li>At least 1 MTRG in given address to claim MTR</li>
+              <li>At least 1 <%= SYSTEM_TOKEN %> in given address to claim <%= SYSTEM_COIN %></li>
               <%}%>
                 <li>One IP could only claim once within 24 hours</li>
                 <li>One address could only claim once</li>
                 <% if (isMainnet) {%>
-                  <li>Each valid time, 0.3 MTR will be issued to given address</li>
+                  <li>Each valid time, 0.3 <%= SYSTEM_COIN %> will be issued to given address</li>
                   <%} else {%>
-                    <li>Each valid time, 2000 MTR and 3000 MTRG will be issued to given address</li>
+                    <li>Each valid time, 2000 <%= SYSTEM_COIN %> and 3000 <%= SYSTEM_TOKEN %> will be issued to given address</li>
                     <%}%>
           </ol>
         </div>
