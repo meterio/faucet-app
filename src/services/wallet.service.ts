@@ -7,7 +7,7 @@ import {
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { getNetworkBase } from '../const/rules';
-import { SYSTEM_COIN, SYSTEM_TOKEN } from 'const/config';
+import { SYSTEM_COIN, SYSTEM_TOKEN } from '../const/config';
 
 const { FAUCET_ADDR, FAUCET_KEY, FAUCET_NETWORK } = process.env;
 

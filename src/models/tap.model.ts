@@ -1,6 +1,6 @@
 import * as mongoose from 'mongoose';
 import Tap from './tap.interface';
-import { SYSTEM_COIN, SYSTEM_TOKEN } from 'const/config';
+import { SYSTEM_COIN, SYSTEM_TOKEN } from '../const/config';
 const txSchema = new mongoose.Schema<Tap>(
   {
     hash: { type: String, required: true },

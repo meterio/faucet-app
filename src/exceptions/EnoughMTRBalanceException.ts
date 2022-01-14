@@ -1,5 +1,5 @@
 import HttpException from './HttpException';
-import { SYSTEM_COIN } from 'const/config';
+import { SYSTEM_COIN } from '../const/config';
 
 class EnoughMTRBalanceException extends HttpException {
   constructor(addr: string) {

@@ -14,7 +14,7 @@ import BigNumber from 'bignumber.js';
 import axios from 'axios';
 import { runInNewContext } from 'vm';
 import * as csrf from 'csurf';
-import { SYSTEM_COIN, SYSTEM_TOKEN } from 'const/config';
+import { SYSTEM_COIN, SYSTEM_TOKEN } from '../const/config';
 
 const { FAUCET_NETWORK, FAUCET_ADDR } = process.env;
 const csrfProtection = csrf({ cookie: true });
