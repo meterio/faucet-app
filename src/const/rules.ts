@@ -8,12 +8,12 @@ export const NetworkBase: { [key: string]: string } = {
 export const TapRules: { [key: string]: any } = {
   mainnet: {
     prerequisite: {
-      minimalMTRGBalance: new BigNumber(1).times(1e18), // 1 MTRG required as balance to enable tap
+      minimalMTRGBalance: new BigNumber(1).times(1e18), // 1 SYSTEM_TOKEN required as balance to enable tap
       maximumMTRBalance: new BigNumber(0),
     },
     tapMTR: {
       enabled: true,
-      amount: new BigNumber(3).times(1e17), // 0.3 MTR each time
+      amount: new BigNumber(3).times(1e17), // 0.3 SYSTEM_COIN each time
     },
     tapMTRG: {
       enabled: false,
@@ -31,11 +31,11 @@ export const TapRules: { [key: string]: any } = {
     },
     tapMTR: {
       enabled: true,
-      amount: new BigNumber(2000).times(1e18), // MTR each tap
+      amount: new BigNumber(2000).times(1e18), // SYSTEM_COIN each tap
     },
     tapMTRG: {
       enabled: true,
-      amount: new BigNumber(3000).times(1e18), // MTRG each tap
+      amount: new BigNumber(3000).times(1e18), // SYSTEM_TOKEN each tap
     },
     checkWhiteList: {
       enabled: false,

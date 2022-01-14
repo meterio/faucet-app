@@ -14,6 +14,7 @@ import BigNumber from 'bignumber.js';
 import axios from 'axios';
 import { runInNewContext } from 'vm';
 import * as csrf from 'csurf';
+import { SYSTEM_COIN, SYSTEM_TOKEN } from 'const/config';
 
 const { FAUCET_NETWORK, FAUCET_ADDR } = process.env;
 const csrfProtection = csrf({ cookie: true });
@@ -142,7 +143,7 @@ class TapController implements Controller {
     const maxMTRBalance = rules.prerequisite.maximumMTRBalance;
     const mtrbalance = await this.wallet.getMTRBalance(address);
     if (!maxMTRBalance.eq(mtrbalance)) {
-      console.log('ENOUGH MTR');
+      console.log(`ENOUGH ${SYSTEM_COIN}`);
       console.log(mtrbalance);
       console.log(maxMTRBalance.toFixed());
       next(new EnoughMTRBalanceException(address));
@@ -170,13 +171,13 @@ class TapController implements Controller {
       rules.tapMTR.amount.isGreaterThan(0)
     ) {
       const amount = rules.tapMTR.amount;
-      const mtrTx = await this.wallet.transferMTR(address, amount); // transfer 0.05 MTR to target address
+      const mtrTx = await this.wallet.transferMTR(address, amount); // transfer 0.05 SYSTEM_COIN to target address
       if (!mtrTx) {
         next(new ServiceNotReadyException());
         return;
       }
-      txs.push({ hash: mtrTx.txid, amount, token: 'MTR' });
-      msgs.push(`${amount.dividedBy(1e18).toFixed()} MTR`);
+      txs.push({ hash: mtrTx.txid, amount, token: SYSTEM_COIN });
+      msgs.push(`${amount.dividedBy(1e18).toFixed()} ${SYSTEM_COIN}`);
     }
 
     if (
@@ -185,16 +186,16 @@ class TapController implements Controller {
       rules.tapMTRG.amount.isGreaterThan(0)
     ) {
       const amount = rules.tapMTRG.amount;
-      const mtrgTx = await this.wallet.transferMTRG(address, amount); // transfer 0.05 MTR to target address
+      const mtrgTx = await this.wallet.transferMTRG(address, amount); // transfer 0.05 SYSTEM_COIN to target address
       if (!mtrgTx) {
         next(new ServiceNotReadyException());
         return;
       }
-      txs.push({ hash: mtrgTx.txid, amount, token: 'MTRG' });
+      txs.push({ hash: mtrgTx.txid, amount, token: SYSTEM_TOKEN });
       if (msgs.length >= 1) {
         msgs.push('and');
       }
-      msgs.push(`${amount.dividedBy(1e18).toFixed()} MTRG`);
+      msgs.push(`${amount.dividedBy(1e18).toFixed()} ${SYSTEM_TOKEN}`);
     }
 
     console.log('tapped for address:', address, 'txs:', txs);

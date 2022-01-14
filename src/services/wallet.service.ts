@@ -7,6 +7,7 @@ import {
 import axios from 'axios';
 import BigNumber from 'bignumber.js';
 import { getNetworkBase } from '../const/rules';
+import { SYSTEM_COIN, SYSTEM_TOKEN } from 'const/config';
 
 const { FAUCET_ADDR, FAUCET_KEY, FAUCET_NETWORK } = process.env;
 
@@ -49,7 +50,7 @@ class WalletService {
       const energy = new BigNumber(res.data.energy);
       const boundenergy = new BigNumber(res.data.boundenergy);
       const mtr = energy.plus(boundenergy);
-      console.log('MTR BALANCE: ', mtr.toFixed());
+      console.log(`${SYSTEM_COIN} BALANCE: `, mtr.toFixed());
       return mtr;
     } catch (e) {
       console.log('Error Happened: ', e.message);
@@ -69,7 +70,7 @@ class WalletService {
       const balance = new BigNumber(res.data.balance);
       const boundbalance = new BigNumber(res.data.boundbalance);
       const mtrg = balance.plus(boundbalance);
-      console.log('MTRG BALANCE: ', mtrg.toFixed());
+      console.log(`${SYSTEM_TOKEN} BALANCE: `, mtrg.toFixed());
       return mtrg;
     } catch (e) {
       console.log('Error Happened: ', e.message);
@@ -88,7 +89,7 @@ class WalletService {
       .comment('faucet');
 
     console.log(
-      `Transfer ${amount.dividedBy(1e18).toString()} MTR to ${toAddr}`
+      `Transfer ${amount.dividedBy(1e18).toString()} ${SYSTEM_COIN} to ${toAddr}`
     );
 
     return signingService.request([
@@ -108,7 +109,7 @@ class WalletService {
       .comment('faucet');
 
     console.log(
-      `Transfer ${amount.dividedBy(1e18).toString()} MTRG to ${toAddr}`
+      `Transfer ${amount.dividedBy(1e18).toString()} ${SYSTEM_TOKEN} to ${toAddr}`
     );
 
     return signingService.request([
