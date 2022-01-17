@@ -180,7 +180,7 @@ class TapController implements Controller {
     }
 
     if (
-      rules.tapMTRG.enalbed &&
+      rules.tapMTRG.enabled &&
       rules.tapMTRG.amount &&
       rules.tapMTRG.amount.isGreaterThan(0)
     ) {
@@ -228,7 +228,7 @@ class TapController implements Controller {
     response.send({
       tap: newTap.toJSON(),
       links,
-      message: `Address ${address} has been isssued ${msgs.join(' ')}`,
+      message: `Address ${address} has been issued ${msgs.join(' ')}`,
     });
   };
 }
