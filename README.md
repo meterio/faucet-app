@@ -7,12 +7,15 @@ This is a faucet app for meter network
 configurations are all listed in .env file. A sample .env file should look like this:
 
 ```
+MONGO_SSL_CA=''
+
 MONGO_USER=faucet
 MONGO_PWD=faucet
-MONGO_PATH=@127.0.0.1:27017/faucet
+# MONGO_PATH=IP:PORT/faucet
+MONGO_PATH=127.0.0.1:27017/faucet
 FAUCET_ADDR=[faucet address]
 FAUCET_KEY=[faucet private key]
-FAUCET_NETWORK=mainnet // or testnet
+FAUCET_NETWORK=mainnet # or testnet
 
 # only account has a MTRG balance larger than this will be able to tap from this faucet
 MTRG_BALANCE_THRESHOLD=1
@@ -36,7 +39,9 @@ docker build -t [your tag] .
 # Run Docker
 
 ```
-docker run --name faucet -p 3001:3001 -v .env:.env.prod [your tag]
+docker run --name faucet -p 3001:3001 -v /path/to/.env.prod:/.env [your tag]
+# if your mongodb service at localhost
+docker run --network=host --name faucet -p 3001:3001 -v /path/to/.env.prod:/.env [your tag]
 ```
 
 ## Installation
