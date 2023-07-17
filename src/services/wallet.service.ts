@@ -52,7 +52,7 @@ class WalletService {
       console.log('MTR BALANCE: ', mtr.toFixed());
       return mtr;
     } catch (e) {
-      console.log('Error Happened: ', e.message);
+      console.log('Error Happened: ', e);
       return new BigNumber(-1);
     }
   }
@@ -72,7 +72,7 @@ class WalletService {
       console.log('MTRG BALANCE: ', mtrg.toFixed());
       return mtrg;
     } catch (e) {
-      console.log('Error Happened: ', e.message);
+      console.log('Error Happened: ', e);
       return new BigNumber(-1);
     }
   }
