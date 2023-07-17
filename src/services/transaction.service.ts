@@ -8,6 +8,7 @@ const while_list = [
   '0x40df6f787bf8bd3fba3b2ef5a742ae0c993f1418', // rebate address
   '0x60f1abaa3ed8a573c91c65a5b82aec4bf35b77b8', // meter bridge erc20 handler
   '0x3f396af107049232bc2804c171ecad65dbcc0323', // meter bridge address
+  '0xd70933ed0737805b7522ecf2e77f6f236eda9c79', // kucoin
 ];
 
 const getTotalCount = async (address: string) => {
