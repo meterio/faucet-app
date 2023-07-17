@@ -1,6 +1,5 @@
-import { cleanEnv, port, str, num } from 'envalid';
+import { cleanEnv, port, str } from 'envalid';
 import { config } from 'dotenv';
-import { getNetworkBase } from '../const/rules';
 
 const { NODE_ENV } = process.env;
 function validateEnv() {
