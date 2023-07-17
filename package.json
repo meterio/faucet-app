@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/server.ts",
   "dependencies": {
-    "@meterio/flex-framework": "^0.4.13",
+    "@meterio/flex-framework": "^0.5.8",
     "@types/cors": "^2.8.13",
     "@types/csurf": "^1.11.2",
     "axios": "^0.19.2",
